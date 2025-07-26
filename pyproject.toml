@@ -5,6 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "dotenv>=0.9.9",
+    "fastapi>=0.116.1",
+    "pydantic-ai>=0.4.7",
+
     "fastapi",
     "graphiti-core[google-genai]>=0.3.21",
     "pydantic-ai>=0.4.7",
