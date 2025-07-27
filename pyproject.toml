@@ -11,4 +11,5 @@ dependencies = [
     "graphiti-core[google-genai]>=0.3.21",
     "google-generativeai>=0.8.5",
     "lightrag-hku[api]>=1.4.4",
+    "pymupdf>=1.26.3",
 ]
