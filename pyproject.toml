@@ -8,9 +8,7 @@ dependencies = [
     "dotenv>=0.9.9",
     "fastapi>=0.116.1",
     "pydantic-ai>=0.4.7",
-    "fastapi",
     "graphiti-core[google-genai]>=0.3.21",
-    "pydantic-ai>=0.4.7",
     "google-generativeai>=0.8.5",
     "lightrag-hku[api]>=1.4.4",
 ]
