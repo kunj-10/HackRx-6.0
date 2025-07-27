@@ -1,0 +1,54 @@
+{
+  "doc-8ae8fbe65fa3e147dc1ff12c5722e46a": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-8ae8fbe65fa3e147dc1ff12c5722e46a"
+    ],
+    "content": "The most popular AI agent framework of all time is probably Langchain.",
+    "content_summary": "The most popular AI agent framework of all time is probably Langchain.",
+    "content_length": 70,
+    "created_at": "2025-07-27T08:39:54.393576+00:00",
+    "updated_at": "2025-07-27T08:40:02.205151+00:00",
+    "file_path": "unknown_source"
+  },
+  "doc-5071634f44c5c0bde8976c058b6e661d": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-5071634f44c5c0bde8976c058b6e661d"
+    ],
+    "content": "Under the Langchain hood we also have LangGraph, LangServe, and LangSmith.",
+    "content_summary": "Under the Langchain hood we also have LangGraph, LangServe, and LangSmith.",
+    "content_length": 74,
+    "created_at": "2025-07-27T08:40:02.229919+00:00",
+    "updated_at": "2025-07-27T08:40:12.860674+00:00",
+    "file_path": "unknown_source"
+  },
+  "doc-ff9522516ba596956d7e270af05ab83b": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-ff9522516ba596956d7e270af05ab83b"
+    ],
+    "content": "Many people prefer using other frameworks like Agno or Pydantic AI instead of Langchain.",
+    "content_summary": "Many people prefer using other frameworks like Agno or Pydantic AI instead of Langchain.",
+    "content_length": 88,
+    "created_at": "2025-07-27T08:40:12.872363+00:00",
+    "updated_at": "2025-07-27T08:40:23.789130+00:00",
+    "file_path": "unknown_source"
+  },
+  "doc-1556647c23d19b6fda16a806b536020d": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-1556647c23d19b6fda16a806b536020d"
+    ],
+    "content": "It is very easy to use Python with all of these AI agent frameworks.",
+    "content_summary": "It is very easy to use Python with all of these AI agent frameworks.",
+    "content_length": 68,
+    "created_at": "2025-07-27T08:40:23.814931+00:00",
+    "updated_at": "2025-07-27T08:40:31.388943+00:00",
+    "file_path": "unknown_source"
+  }
+}

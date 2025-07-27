@@ -1,0 +1,58 @@
+{
+  "chunk-8ae8fbe65fa3e147dc1ff12c5722e46a": {
+    "tokens": 14,
+    "content": "The most popular AI agent framework of all time is probably Langchain.",
+    "chunk_order_index": 0,
+    "full_doc_id": "doc-8ae8fbe65fa3e147dc1ff12c5722e46a",
+    "file_path": "unknown_source",
+    "llm_cache_list": [
+      "default:extract:a63b513600e00690bbf723b68b136856",
+      "default:extract:3f6deb6e911d6d2be57f625365423d7c"
+    ],
+    "create_time": 1753605594,
+    "update_time": 1753605599,
+    "_id": "chunk-8ae8fbe65fa3e147dc1ff12c5722e46a"
+  },
+  "chunk-5071634f44c5c0bde8976c058b6e661d": {
+    "tokens": 18,
+    "content": "Under the Langchain hood we also have LangGraph, LangServe, and LangSmith.",
+    "chunk_order_index": 0,
+    "full_doc_id": "doc-5071634f44c5c0bde8976c058b6e661d",
+    "file_path": "unknown_source",
+    "llm_cache_list": [
+      "default:extract:cb5b2d7c2b2368652351a8f3614237cc",
+      "default:extract:acdc1e9ff0c23d002f0d76dda54a2822"
+    ],
+    "create_time": 1753605602,
+    "update_time": 1753605608,
+    "_id": "chunk-5071634f44c5c0bde8976c058b6e661d"
+  },
+  "chunk-ff9522516ba596956d7e270af05ab83b": {
+    "tokens": 19,
+    "content": "Many people prefer using other frameworks like Agno or Pydantic AI instead of Langchain.",
+    "chunk_order_index": 0,
+    "full_doc_id": "doc-ff9522516ba596956d7e270af05ab83b",
+    "file_path": "unknown_source",
+    "llm_cache_list": [
+      "default:extract:36992dfd3ac12468a2f0fe2b73fee4ae",
+      "default:extract:8de1573931158bc91430438ca3f38c20"
+    ],
+    "create_time": 1753605612,
+    "update_time": 1753605618,
+    "_id": "chunk-ff9522516ba596956d7e270af05ab83b"
+  },
+  "chunk-1556647c23d19b6fda16a806b536020d": {
+    "tokens": 15,
+    "content": "It is very easy to use Python with all of these AI agent frameworks.",
+    "chunk_order_index": 0,
+    "full_doc_id": "doc-1556647c23d19b6fda16a806b536020d",
+    "file_path": "unknown_source",
+    "llm_cache_list": [
+      "default:extract:6e3a92de4f9c4e7e03a8c7a4e3ee8b65",
+      "default:extract:7b0f9da89548a7e6e1392217010e3352"
+    ],
+    "create_time": 1753605623,
+    "update_time": 1753605628,
+    "_id": "chunk-1556647c23d19b6fda16a806b536020d"
+  }
+}

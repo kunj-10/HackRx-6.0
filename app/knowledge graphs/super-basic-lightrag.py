@@ -6,12 +6,14 @@ from lightrag import LightRAG, QueryParam
 from typing import Any
 import numpy as np
 import asyncio
+import os
 
 async def llm_model_func(
     prompt,
     system_prompt=None,
     history_messages=None,
     keyword_extraction=False,
+    api_key: str = os.environ["GEMINI_API_KEY"],
     **kwargs,
 ) -> str:
     if history_messages is None:
@@ -26,15 +28,16 @@ async def llm_model_func(
         prompt=prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
+        api_key=api_key,
         **kwargs,
     )
 
-@wrap_embedding_func_with_attrs(embedding_dim=1536, max_token_size=8192)
+@wrap_embedding_func_with_attrs(embedding_dim=3072, max_token_size=8192)
 async def embedding_func(
     texts: list[str],
     model: str = "gemini-embedding-001",
     base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/",
-    api_key: str = None,
+    api_key: str = os.environ["GEMINI_API_KEY"],
     client_configs: dict[str, Any] = None,
 ) -> np.ndarray:
     return await openai_embed(
