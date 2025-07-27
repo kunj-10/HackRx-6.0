@@ -1,9 +1,11 @@
-import asyncio
-from lightrag import LightRAG, QueryParam
 from lightrag.llm.openai import openai_complete_if_cache, openai_embed
 from lightrag.kg.shared_storage import initialize_pipeline_status
 from lightrag.types import GPTKeywordExtractionFormat
+from lightrag.utils import wrap_embedding_func_with_attrs
+from lightrag import LightRAG, QueryParam
+from typing import Any
 import numpy as np
+import asyncio
 
 async def llm_model_func(
     prompt,
@@ -27,10 +29,11 @@ async def llm_model_func(
         **kwargs,
     )
 
+@wrap_embedding_func_with_attrs(embedding_dim=1536, max_token_size=8192)
 async def embedding_func(
     texts: list[str],
-    model: str = "text-embedding-3-small",
-    base_url: str = None,
+    model: str = "gemini-embedding-001",
+    base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/",
     api_key: str = None,
     client_configs: dict[str, Any] = None,
 ) -> np.ndarray:
@@ -38,7 +41,7 @@ async def embedding_func(
         texts=texts,
         model=model,
         base_url=base_url,
-        api_key=api_key
+        api_key=api_key,
         client_configs=client_configs
     )
 
