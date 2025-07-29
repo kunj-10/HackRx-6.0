@@ -1,7 +1,7 @@
-# 🧠 IntelliQuery
+# 🧠 HackRx6.0
 
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,2,20,25,30&height=200&section=header&text=IntelliQuery&fontSize=60&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=LLM-Powered%20Intelligent%20Query-Retrieval%20System&descAlignY=55&descSize=18" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,2,20,25,30&height=200&section=header&text=HackRx6.0&fontSize=60&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=LLM-Powered%20Intelligent%20Query-Retrieval%20System&descAlignY=55&descSize=18" width="100%"/>
 <br/>
 
 <p>
@@ -61,7 +61,7 @@
 ---
 
 ## 🏗️ System Architecture
-
+<img width="1258" height="770" alt="diagram-export-7-28-2025-11_11_19-PM 1" src="https://github.com/user-attachments/assets/1c06c734-f3e4-4d5f-b765-31042128173f" />
 
 ---
 
