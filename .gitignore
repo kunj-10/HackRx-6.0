@@ -1,11 +1,12 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+# Ignore virtual environments
+venv/
 
-# Virtual environments
-.venv
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+
+# Ignore environment files
 .env
+
+# Ignore system files
+.DS_Store
