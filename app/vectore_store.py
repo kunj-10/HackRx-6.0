@@ -1,15 +1,11 @@
 import os
 import json
 import asyncio
-import requests
-from xml.etree import ElementTree
-from typing import List, Dict, Any
+import fitz  # PyMuPDF
+from typing import List, Dict
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from urllib.parse import urlparse
 from dotenv import load_dotenv
 
-from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 from openai import AsyncOpenAI
 from supabase import create_client, Client
 
@@ -32,6 +28,7 @@ class ProcessedChunk:
     summary: str
     content: str
     embedding: List[float]
+    source_file: str
 
 def chunk_text(text: str, chunk_size: int = 5000) -> List[str]:
     chunks = []
@@ -40,6 +37,7 @@ def chunk_text(text: str, chunk_size: int = 5000) -> List[str]:
 
     while start < text_length:
         end = start + chunk_size
+        chunk = text[start:end]
 
         if end >= text_length:
             chunks.append(text[start:].strip())
@@ -47,11 +45,11 @@ def chunk_text(text: str, chunk_size: int = 5000) -> List[str]:
 
         if '\n\n' in chunk:
             last_break = chunk.rfind('\n\n')
-            if last_break > chunk_size * 0.3:  
+            if last_break > chunk_size * 0.3:
                 end = start + last_break
         elif '. ' in chunk:
             last_period = chunk.rfind('. ')
-            if last_period > chunk_size * 0.3:  
+            if last_period > chunk_size * 0.3:
                 end = start + last_period + 1
 
         chunk = text[start:end].strip()
@@ -68,17 +66,26 @@ async def get_title_and_summary(chunk: str) -> Dict[str, str]:
     For the title: If this seems like the start of a document, extract its title. If it's a middle chunk, derive a descriptive title.
     For the summary: Create a concise summary of the main points in this chunk.
     Keep both title and summary concise but informative."""
-    
+
     try:
         response = await openai_client.chat.completions.create(
             model="gemini-2.0-flash",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Content:\n{chunk[:1000]}..."}  
+                {"role": "user", "content": f"Content:\n{chunk[:1000]}..."}
             ],
-            response_format={ "type": "json_object" }
+            response_format={"type": "json_object"}
         )
-        return json.loads(response.choices[0].message.content)
+
+        content = response.choices[0].message.content
+
+        parsed = json.loads(content)
+
+        # If it's a list, just return the first item
+        if isinstance(parsed, list):
+            return parsed[0]
+        return parsed
+
     except Exception as e:
         print(f"Error getting title and summary: {e}")
         return {"title": "Error processing title", "summary": "Error processing summary"}
@@ -93,20 +100,19 @@ async def get_embedding(text: str) -> List[float]:
         return response.data[0].embedding
     except Exception as e:
         print(f"Error getting embedding: {e}")
-        return [0] * 1536  # Return zero vector on error
+        return [0] * 1536
 
-async def process_chunk(chunk: str, chunk_number: int) -> ProcessedChunk:
-    """Process a single chunk of text."""
+async def process_chunk(chunk: str, chunk_number: int, source_file: str) -> ProcessedChunk:
     extracted = await get_title_and_summary(chunk)
-    
     embedding = await get_embedding(chunk)
-    
+
     return ProcessedChunk(
         chunk_number=chunk_number,
-        title=extracted['title'],
-        summary=extracted['summary'],
+        title=extracted["title"],
+        summary=extracted["summary"],
         content=chunk,
-        embedding=embedding
+        embedding=embedding,
+        source_file=source_file
     )
 
 async def insert_chunk(chunk: ProcessedChunk):
@@ -116,71 +122,38 @@ async def insert_chunk(chunk: ProcessedChunk):
             "title": chunk.title,
             "summary": chunk.summary,
             "content": chunk.content,
-            "embedding": chunk.embedding
+            "embedding": chunk.embedding,
+            "source_file": chunk.source_file
         }
-        
-        result = supabase.table("site_pages").insert(data).execute()
-        print(f"Inserted chunk {chunk.chunk_number} for {chunk.url}")
+        result = supabase.table("pdf_chunks").insert(data).execute()
+        print(f"Inserted chunk {chunk.chunk_number} from {chunk.source_file}")
         return result
     except Exception as e:
         print(f"Error inserting chunk: {e}")
         return None
 
-async def process_and_store_document(markdown: str):
-    """Process a document and store its chunks in parallel."""
-    chunks = chunk_text(markdown)
-    
-    # Process chunks in parallel
-    tasks = [
-        process_chunk(chunk, i) 
-        for i, chunk in enumerate(chunks)
-    ]
-    processed_chunks = await asyncio.gather(*tasks)
-    
-    # Store chunks in parallel
-    insert_tasks = [
-        insert_chunk(chunk) 
-        for chunk in processed_chunks
-    ]
-    await asyncio.gather(*insert_tasks)
+async def process_and_store_document(text: str, source_file: str):
+    chunks = chunk_text(text)
+    processed = await asyncio.gather(*[
+        process_chunk(chunk, i, source_file) for i, chunk in enumerate(chunks)
+    ])
+    await asyncio.gather(*[insert_chunk(c) for c in processed])
 
-async def crawl_parallel(urls: List[str], max_concurrent: int = 5):
-    """Crawl multiple URLs in parallel with a concurrency limit."""
-    browser_config = BrowserConfig(
-        headless=True,
-        verbose=False,
-        extra_args=["--disable-gpu", "--disable-dev-shm-usage", "--no-sandbox"],
-    )
-    crawl_config = CrawlerRunConfig(cache_mode=CacheMode.BYPASS)
-
-    # Create the crawler instance
-    crawler = AsyncWebCrawler(config=browser_config)
-    await crawler.start()
-
-    try:
-        # Create a semaphore to limit concurrency
-        semaphore = asyncio.Semaphore(max_concurrent)
-        
-        async def process_url(url: str):
-            async with semaphore:
-                result = await crawler.arun(
-                    url=url,
-                    config=crawl_config,
-                    session_id="session1"
-                )
-                if result.success:
-                    print(f"Successfully crawled: {url}")
-                    await process_and_store_document(url, result.markdown.raw_markdown)
-                else:
-                    print(f"Failed: {url} - Error: {result.error_message}")
-        
-        # Process all URLs in parallel with limited concurrency
-        await asyncio.gather(*[process_url(url) for url in urls])
-    finally:
-        await crawler.close()
+def extract_text_from_pdf(pdf_path: str) -> str:
+    doc = fitz.open(pdf_path)
+    full_text = ""
+    for page in doc:
+        full_text += page.get_text()
+        full_text += "\n\nPage End\n\n"
+    doc.close()
+    return full_text
 
 async def main():
-    await crawl_parallel(urls)
+    pdf_path = "data/one.pdf"  # Update this
+    source_file = os.path.basename(pdf_path)
+
+    text = extract_text_from_pdf(pdf_path)
+    await process_and_store_document(text, source_file)
 
 if __name__ == "__main__":
     asyncio.run(main())
