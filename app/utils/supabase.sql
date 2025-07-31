@@ -22,7 +22,7 @@ create index on pdf_chunks using ivfflat (embedding vector_cosine_ops);
 create index idx_pdf_chunks_source_file on pdf_chunks (source_file);
 
 -- Function to perform semantic similarity search
-create function match_pdf_chunks (
+create or replace function match_pdf_chunks (
   query_embedding vector(1536),
   match_count int default 10,
   source text default ''
@@ -40,19 +40,20 @@ as $$
 begin
   return query
   select
-    id,
-    source_file,
-    chunk_number,
-    title,
-    summary,
-    content,
+    pdf_chunks.id,
+    pdf_chunks.source_file,
+    pdf_chunks.chunk_number,
+    pdf_chunks.title,
+    pdf_chunks.summary,
+    pdf_chunks.content,
     1 - (pdf_chunks.embedding <=> query_embedding) as similarity
   from pdf_chunks
-  where source_file = source or source = ''
+  where pdf_chunks.source_file = source or source = ''
   order by pdf_chunks.embedding <=> query_embedding
   limit match_count;
 end;
 $$;
+
 
 -- Enable RLS
 alter table pdf_chunks enable row level security;
