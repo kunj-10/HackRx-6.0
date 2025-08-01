@@ -20,6 +20,8 @@ app.add_middleware(
 )
 
 # Include routers
+from app.api import hackrx_router
+app.include_router(hackrx_router, prefix='/api/v1' )
 
 @app.get("/", tags=["health"])
 async def root():
