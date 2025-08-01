@@ -69,7 +69,7 @@ async def get_title_and_summary(chunk: str) -> Dict[str, str]:
 
     try:
         response = await openai_client.chat.completions.create(
-            model="gemini-2.0-flash",
+            model="gemini-2.0-flash-lite",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"Content:\n{chunk[:1000]}..."}
@@ -134,10 +134,13 @@ async def insert_chunk(chunk: ProcessedChunk):
 
 async def process_and_store_document(text: str, source_file: str):
     chunks = chunk_text(text)
-    processed = await asyncio.gather(*[
-        process_chunk(chunk, i, source_file) for i, chunk in enumerate(chunks)
-    ])
-    await asyncio.gather(*[insert_chunk(c) for c in processed])
+    for i, chunk in enumerate(chunks):
+        pc = await process_chunk(chunk, i, source_file)
+        await insert_chunk(pc)
+    # processed = await asyncio.gather(*[
+    #     process_chunk(chunk, i, source_file) for i, chunk in enumerate(chunks)
+    # ])
+    # await asyncio.gather(*[insert_chunk(c) for c in processed])
 
 def extract_text_from_pdf(pdf_path: str) -> str:
     doc = fitz.open(pdf_path)
@@ -149,7 +152,7 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     return full_text
 
 async def main():
-    pdf_path = "data/one.pdf"
+    pdf_path = "data/three.pdf"
     source_file = os.path.basename(pdf_path)
 
     text = extract_text_from_pdf(pdf_path)
