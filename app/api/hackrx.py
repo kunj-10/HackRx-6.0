@@ -22,7 +22,7 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 @hackrx_router.post('/hackrx/run')
 async def run_hackrx(
     payload: HackRxRequest,
-    token: str = Depends(verify_token)
+    # token: str = Depends(verify_token)
 ):
     try:
         parsed_url = urlparse(str(payload.documents))
