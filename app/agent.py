@@ -1,13 +1,7 @@
-from pydantic_ai import Agent, RunContext
-from dataclasses import dataclass
-from openai import AsyncOpenAI
+from app.utils import RAG_AGENT_SYSTEM_PROMPT
 from dotenv import load_dotenv
-from supabase import Client
-from typing import List
-import os
-
+from pydantic_ai import Agent
 from vectore_store import (
-    openai_client,
     supabase,
     get_embedding
 )
@@ -16,11 +10,7 @@ load_dotenv()
 
 pdf_ai_expert = Agent(
     "google-gla:gemini-2.0-flash",
-    system_prompt="""
-You are a PDF AI assistant with access to vector search on PDF chunks stored in a database.
-You help users retrieve and understand knowledge extracted from technical documents.
-You rely only on documentation you’ve retrieved using tools.
-""",
+    system_prompt=RAG_AGENT_SYSTEM_PROMPT,
     retries=2
 )
 
