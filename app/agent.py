@@ -1,22 +1,18 @@
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.models.openai import OpenAIModel
 from dataclasses import dataclass
-from typing import List
-from supabase import Client
 from openai import AsyncOpenAI
-import os
 from dotenv import load_dotenv
+from supabase import Client
+from typing import List
+import os
 
-load_dotenv()
-
-openai_client = AsyncOpenAI(
-    api_key=os.getenv("GEMINI_API_KEY"),
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+from vectore_store import (
+    openai_client,
+    supabase,
+    get_embedding
 )
 
-@dataclass
-class PDFAIAgentDeps:
-    supabase: Client
+load_dotenv()
 
 pdf_ai_expert = Agent(
     "google-gla:gemini-2.0-flash",
@@ -25,32 +21,30 @@ You are a PDF AI assistant with access to vector search on PDF chunks stored in 
 You help users retrieve and understand knowledge extracted from technical documents.
 You rely only on documentation you’ve retrieved using tools.
 """,
-    deps_type=PDFAIAgentDeps,
     retries=2
 )
 
-async def get_embedding(text: str) -> List[float]:
-    try:
-        response = await openai_client.embeddings.create(
-            model="gemini-embedding-exp-03-07",
-            dimensions=1536,
-            input=text
-        )
-        return response.data[0].embedding
-    except Exception as e:
-        print(f"Error getting embedding: {e}")
-        return [0] * 1536
+@pdf_ai_expert.tool_plain
+async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -> str:
+    """
+    Queries the vector  database to get chunks relevant to the given query
 
-@pdf_ai_expert.tool
-async def retrieve_relevant_pdf_chunks(ctx: RunContext[PDFAIAgentDeps], user_query: str, source_file: str = "") -> str:
+    Args:
+    user_query: the query asked by the user
+    source_file: the file from which chunks are to be fetched
+
+    Returns:
+    Top 3 matching documents. 
+    """
     print(f"calling retrieve_relevant_documents. User Query: {user_query}, sorce_file: {source_file}")
+
     embedding = await get_embedding(user_query)
 
-    result = ctx.deps.supabase.rpc(
+    result = supabase.rpc(
         'match_pdf_chunks',
         {
             'query_embedding': embedding,
-            'match_count': 5,
+            'match_count': 3,
             'source': source_file
         }
     ).execute()
@@ -58,14 +52,28 @@ async def retrieve_relevant_pdf_chunks(ctx: RunContext[PDFAIAgentDeps], user_que
     if not result.data:
         return "No relevant chunks found."
 
-    return "\n\n---\n\n".join([
+    result = "\n\n---\n\n".join([
         f"# {r['title']}\n\n{r['content']}" for r in result.data
     ])
 
-@pdf_ai_expert.tool
-async def get_pdf_content(ctx: RunContext[PDFAIAgentDeps], source_file: str) -> str:
+    print(result)
+    return result
+
+@pdf_ai_expert.tool_plain
+async def get_pdf_content(source_file: str) -> str:
+    """
+    Gives the content of whole pdfs. Pdfs are very huge so call this tool carefully and responsibly.
+
+    Args:
+    source_file: the file whose content is to be fetched.
+
+    Returns:
+    The content of the entire pdf.
+    """
+    
     print("Calling get_pdf_content...")
-    result = ctx.deps.supabase.from_('pdf_chunks') \
+    
+    result = supabase.from_('pdf_chunks') \
         .select('title, content, chunk_number') \
         .eq('source_file', source_file) \
         .order('chunk_number') \
@@ -78,18 +86,9 @@ async def get_pdf_content(ctx: RunContext[PDFAIAgentDeps], source_file: str) -> 
     return f"# {page_title}\n\n" + "\n\n".join(chunk['content'] for chunk in result.data)
 
 async def main():
-    from supabase import Client
-    supabase: Client = Client(
-        os.getenv("SUPABASE_URL"),
-        os.getenv("SUPABASE_SERVICE_KEY")
-    )
-
-    deps = PDFAIAgentDeps(
-        supabase=supabase,
-    )
-
     print("getting output...")
-    res = await pdf_ai_expert.run("source_file is one.pdf. user_query: what is . Congenital Anomaly?", deps=deps)
+
+    res = await pdf_ai_expert.run("source_file is one.pdf. user_query: what is . Congenital Anomaly?")
     print(res.output)
 
 if __name__ == '__main__':
