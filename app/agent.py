@@ -1,7 +1,7 @@
 from app.utils import RAG_AGENT_SYSTEM_PROMPT
 from dotenv import load_dotenv
 from pydantic_ai import Agent
-from vectore_store import (
+from app.vector_store import (
     supabase,
     get_embedding
 )
@@ -46,7 +46,7 @@ async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -
         f"# {r['title']}\n\n{r['content']}" for r in result.data
     ])
 
-    print(result)
+    # print(result)
     return result
 
 @pdf_ai_expert.tool_plain

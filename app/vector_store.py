@@ -1,7 +1,7 @@
 import os
 import json
+import fitz 
 import asyncio
-import fitz  # PyMuPDF
 from typing import List, Dict
 from dataclasses import dataclass
 from dotenv import load_dotenv
@@ -149,7 +149,7 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     return full_text
 
 async def main():
-    pdf_path = "data/one.pdf"  # Update this
+    pdf_path = "data/one.pdf"
     source_file = os.path.basename(pdf_path)
 
     text = extract_text_from_pdf(pdf_path)
