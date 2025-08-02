@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     """
     app_name: str = "HackRx 6.0"
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
-    supabse_url: str = os.getenv("SUPABASE_URL", "")
+    supabase_url: str = os.getenv("SUPABASE_URL", "")
     supabase_service_key: str = os.getenv("SUPABASE_SERVICE_KEY", "")
     debug: bool = bool(os.getenv("DEBUG", False))
 
