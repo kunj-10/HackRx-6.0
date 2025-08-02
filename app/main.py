@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core import get_settings
+import logging
+
+settings = get_settings()
+
 app = FastAPI(
     title="Backend-API",
     description="Backend for Bajaj HackRx 6.0",
@@ -26,9 +31,10 @@ app.include_router(hackrx_router, prefix='/api/v1' )
 @app.get("/", tags=["health"])
 async def root():
     """Root endpoint for API health check."""
+    logging.info("checking..")
     return {
         "status": "online",
-        "app_name": "",
+        "app_name": settings.app_name,
         "version": "0.1.0"
     }
 

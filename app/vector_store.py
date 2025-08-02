@@ -134,20 +134,21 @@ async def insert_chunk(chunk: ProcessedChunk):
 
 async def process_and_store_document(text: str, source_file: str):
     chunks = chunk_text(text)
-    for i, chunk in enumerate(chunks):
-        pc = await process_chunk(chunk, i, source_file)
-        await insert_chunk(pc)
-    # processed = await asyncio.gather(*[
-    #     process_chunk(chunk, i, source_file) for i, chunk in enumerate(chunks)
-    # ])
-    # await asyncio.gather(*[insert_chunk(c) for c in processed])
+    # for i, chunk in enumerate(chunks):
+    #     pc = await process_chunk(chunk, i, source_file)
+    #     await insert_chunk(pc)
+    
+    processed = await asyncio.gather(*[
+        process_chunk(chunk, i, source_file) for i, chunk in enumerate(chunks)
+    ])
+    
+    await asyncio.gather(*[insert_chunk(c) for c in processed])
 
 def extract_text_from_pdf(pdf_path: str) -> str:
     doc = fitz.open(pdf_path)
     full_text = ""
     for page in doc:
         full_text += page.get_text()
-        full_text += "\n\nPage End\n\n"
     doc.close()
     return full_text
 

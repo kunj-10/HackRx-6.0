@@ -1,13 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
-from app.utils import verify_token, extract_text
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, HttpUrl
-from typing import List
-import aiohttp
-import aiofiles
-import os
+from app.utils import extract_text
 from urllib.parse import urlparse
-from app.vector_store import process_and_store_document
+from typing import List
+import aiofiles
+import aiohttp
 import uuid
+import time
+import os
+
+from app.vector_store import process_and_store_document
 from app.agent import pdf_ai_expert
 
 hackrx_router = APIRouter()
@@ -25,6 +27,8 @@ async def run_hackrx(
     # token: str = Depends(verify_token)
 ):
     try:
+        start_time = time.monotonic()
+
         parsed_url = urlparse(str(payload.documents))
         original_filename = f"{uuid.uuid4()}_{os.path.basename(parsed_url.path)}"
         if not original_filename:
@@ -60,3 +64,7 @@ async def run_hackrx(
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
+            
+        end_time = time.monotonic()
+        duration = end_time - start_time
+        print(f"⏱️ Total response time: {duration:.2f} seconds")
