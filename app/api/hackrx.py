@@ -48,6 +48,8 @@ async def run_hackrx(
 
         for question in payload.questions:
             result = await pdf_ai_expert.run(f"source_file is {original_filename}. user_query: {question}")
+            print(question)
+            print(result.output)
             response["answers"].append(result.output)
         
         return response
