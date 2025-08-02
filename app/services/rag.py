@@ -47,6 +47,6 @@ async def answer_query(user_query: str, source_file: str) -> str:
         )
 
         content = response.choices[0].message.content
-        return context
+        return content
     except Exception as e:
         logging.error(f"Error getting title and summary: {e}")

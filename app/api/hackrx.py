@@ -9,7 +9,7 @@ import aiohttp
 import uuid
 import time
 import os
-
+import asyncio
 from app.services.vector_store_service import process_and_store_document
 from app.services.agent import pdf_ai_expert
 from app.services.rag import answer_query
@@ -50,16 +50,18 @@ async def run_hackrx(
         await process_and_store_document(text, original_filename)
 
         response = {"answers": []}
-
-        for question in payload.questions:
+        response['answers'] = await asyncio.gather(*[
+            answer_query(question, original_filename) for question in payload.questions
+        ])
+        # for question in payload.questions:
             # result = await pdf_ai_expert.run(f"source_file is {original_filename}. user_query: {question}")
 
             # logging.info(f"Question: {question} ----- Response: {result.output}")
             # response["answers"].append(result.output)
 
-            result = await answer_query(question, original_filename)
-            logging.info(f"Question: {question} ----- Response: {result}")
-            response["answers"].append(result)
+            # result = await answer_query(question, original_filename)
+            # logging.info(f"Question: {question} ----- Response: {result}")
+            # response["answers"].append(result)
         
         return response
     except Exception as e:
