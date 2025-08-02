@@ -69,7 +69,7 @@ async def get_title_and_summary(chunk: str) -> Dict[str, str]:
 
     try:
         response = await openai_client.chat.completions.create(
-            model="gemini-2.0-flash-lite",
+            model="gemini-2.0-flash",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"Content:\n{chunk[:1000]}..."}
