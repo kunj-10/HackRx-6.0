@@ -12,6 +12,7 @@ import os
 
 from app.services.vector_store_service import process_and_store_document
 from app.services.agent import pdf_ai_expert
+from app.services.rag import answer_query
 
 hackrx_router = APIRouter()
 
@@ -51,10 +52,14 @@ async def run_hackrx(
         response = {"answers": []}
 
         for question in payload.questions:
-            result = await pdf_ai_expert.run(f"source_file is {original_filename}. user_query: {question}")
+            # result = await pdf_ai_expert.run(f"source_file is {original_filename}. user_query: {question}")
 
-            logging.info(f"Question: {question} ----- Response: {result.output}")
-            response["answers"].append(result.output)
+            # logging.info(f"Question: {question} ----- Response: {result.output}")
+            # response["answers"].append(result.output)
+
+            result = await answer_query(question, original_filename)
+            logging.info(f"Question: {question} ----- Response: {result}")
+            response["answers"].append(result)
         
         return response
     except Exception as e:

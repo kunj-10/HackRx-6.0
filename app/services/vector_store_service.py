@@ -65,6 +65,8 @@ def chunk_text(text: str, chunk_size: int = 5000) -> List[str]:
     return chunks
 
 async def get_title_and_summary(chunk: str) -> Dict[str, str]:
+    return {"title": "Error processing title", "summary": "Error processing summary"}
+
     system_prompt = """You are an AI that extracts titles and summaries from documentation chunks.
     Return a JSON object with 'title' and 'summary' keys.
     For the title: If this seems like the start of a document, extract its title. If it's a middle chunk, derive a descriptive title.
