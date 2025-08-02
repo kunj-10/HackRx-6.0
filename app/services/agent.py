@@ -1,7 +1,9 @@
-from app.utils import RAG_AGENT_SYSTEM_PROMPT
 from dotenv import load_dotenv
 from pydantic_ai import Agent
-from app.vector_store import (
+import logging
+
+from app.utils import RAG_AGENT_SYSTEM_PROMPT
+from app.services.vector_store_service import (
     supabase,
     get_embedding
 )
@@ -26,7 +28,7 @@ async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -
     Returns:
     Top 3 matching documents. 
     """
-    print(f"calling retrieve_relevant_documents. User Query: {user_query}, sorce_file: {source_file}")
+    logging.info(f"calling retrieve_relevant_documents. User Query: {user_query}, sorce_file: {source_file}")
 
     embedding = await get_embedding(user_query)
 
@@ -61,7 +63,7 @@ async def get_pdf_content(source_file: str) -> str:
     The content of the entire pdf.
     """
     
-    print("Calling get_pdf_content...")
+    logging.info("Calling get_pdf_content...")
     
     result = supabase.from_('pdf_chunks') \
         .select('title, content, chunk_number') \

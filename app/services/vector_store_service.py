@@ -2,6 +2,7 @@ import os
 import json
 import fitz 
 import asyncio
+import logging
 from typing import List, Dict
 from dataclasses import dataclass
 from dotenv import load_dotenv
@@ -9,16 +10,19 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from supabase import create_client, Client
 
+from app.core import get_settings
+settings = get_settings
+
 load_dotenv()
 
 openai_client = AsyncOpenAI(
-    api_key=os.getenv("GEMINI_API_KEY"),
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    api_key = settings.gemini_api_key,
+    base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
 )
 
 supabase: Client = create_client(
-    os.getenv("SUPABASE_URL"),
-    os.getenv("SUPABASE_SERVICE_KEY")
+    settings.supabase_url,
+    settings.supabase_service_key
 )
 
 @dataclass
@@ -87,7 +91,7 @@ async def get_title_and_summary(chunk: str) -> Dict[str, str]:
         return parsed
 
     except Exception as e:
-        print(f"Error getting title and summary: {e}")
+        logging.error(f"Error getting title and summary: {e}")
         return {"title": "Error processing title", "summary": "Error processing summary"}
 
 async def get_embedding(text: str) -> List[float]:
@@ -99,7 +103,7 @@ async def get_embedding(text: str) -> List[float]:
         )
         return response.data[0].embedding
     except Exception as e:
-        print(f"Error getting embedding: {e}")
+        logging.error(f"Error getting embedding: {e}")
         return [0] * 1536
 
 async def process_chunk(chunk: str, chunk_number: int, source_file: str) -> ProcessedChunk:
@@ -125,11 +129,13 @@ async def insert_chunk(chunk: ProcessedChunk):
             "embedding": chunk.embedding,
             "source_file": chunk.source_file
         }
+        
         result = supabase.table("pdf_chunks").insert(data).execute()
-        print(f"Inserted chunk {chunk.chunk_number} from {chunk.source_file}")
+        logging.info(f"Inserted chunk {chunk.chunk_number} from {chunk.source_file}")
+        
         return result
     except Exception as e:
-        print(f"Error inserting chunk: {e}")
+        logging.error(f"Error inserting chunk: {e}")
         return None
 
 async def process_and_store_document(text: str, source_file: str):

@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core import get_settings
-import logging
 
 settings = get_settings()
 
@@ -31,7 +30,6 @@ app.include_router(hackrx_router, prefix='/api/v1' )
 @app.get("/", tags=["health"])
 async def root():
     """Root endpoint for API health check."""
-    logging.info("checking..")
     return {
         "status": "online",
         "app_name": settings.app_name,

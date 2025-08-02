@@ -4,13 +4,14 @@ from app.utils import extract_text
 from urllib.parse import urlparse
 from typing import List
 import aiofiles
+import logging
 import aiohttp
 import uuid
 import time
 import os
 
-from app.vector_store import process_and_store_document
-from app.agent import pdf_ai_expert
+from app.services.vector_store_service import process_and_store_document
+from app.services.agent import pdf_ai_expert
 
 hackrx_router = APIRouter()
 
@@ -43,8 +44,7 @@ async def run_hackrx(
 
                 async with aiofiles.open(filepath, 'wb') as f:
                     await f.write(await response.read())
-
-        
+     
         text = extract_text(filepath)
         await process_and_store_document(text, original_filename)
 
@@ -52,13 +52,13 @@ async def run_hackrx(
 
         for question in payload.questions:
             result = await pdf_ai_expert.run(f"source_file is {original_filename}. user_query: {question}")
-            print(question)
-            print(result.output)
+
+            logging.info(f"Question: {question} ----- Response: {result.output}")
             response["answers"].append(result.output)
         
         return response
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error(f"Error: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred during processing.")
     
     finally:
@@ -67,4 +67,4 @@ async def run_hackrx(
             
         end_time = time.monotonic()
         duration = end_time - start_time
-        print(f"⏱️ Total response time: {duration:.2f} seconds")
+        logging.info(f"⏱️ Total response time: {duration:.2f} seconds")
