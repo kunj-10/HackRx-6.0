@@ -8,7 +8,6 @@ dependencies = [
     "dotenv>=0.9.9",
     "fastapi>=0.116.1",
     "pydantic-ai>=0.4.7",
-    "graphiti-core[google-genai]>=0.3.21",
     "pymupdf>=1.26.3",
     "supabase>=2.17.0",
     "openai>=1.97.1",

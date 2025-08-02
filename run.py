@@ -13,7 +13,9 @@ load_dotenv(override=True)
 
 # Check for required environment variables
 required_vars = [
-    # "GEMINI_API_KEY",
+    "GEMINI_API_KEY",
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_KEY"
 ]
 
 missing_vars = [var for var in required_vars if not os.getenv(var)]
@@ -23,7 +25,7 @@ if missing_vars:
     sys.exit(1)
 
 if __name__ == "__main__":
-    print("🚀 Starting Mahanayak Backend...")
+    print("🚀 Starting Backend...")
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
