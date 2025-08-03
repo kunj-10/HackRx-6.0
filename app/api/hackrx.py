@@ -32,6 +32,7 @@ async def run_hackrx(
 ):
     try:
         start_time = time.monotonic()
+        logging.info(f"Document URL: {payload.documents}")
 
         parsed_url = urlparse(str(payload.documents))
         original_filename = f"{uuid.uuid4()}_{os.path.basename(parsed_url.path)}"
