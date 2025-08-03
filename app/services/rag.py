@@ -39,7 +39,7 @@ async def answer_query(user_query: str, source_file: str) -> str:
         prompt = f"Retrieved Chunks: {context}. \n User Query: {user_query}."
 
         response = await openai_client.chat.completions.create(
-            model="gemini-2.5-flash",
+            model="gemini-2.5-pro",
             messages=[
                 {"role": "system", "content": RAG_AGENT_SYSTEM_PROMPT},
                 {"role": "user", "content": prompt}
