@@ -13,6 +13,8 @@ import asyncio
 from app.services.vector_store_service import process_and_store_document
 from app.services.agent import pdf_ai_expert
 from app.services.rag import answer_query
+from app.utils import compute_sha256
+from app.api.db.mongo import file_collection
 
 hackrx_router = APIRouter()
 
@@ -45,13 +47,28 @@ async def run_hackrx(
 
                 async with aiofiles.open(filepath, 'wb') as f:
                     await f.write(await response.read())
-     
-        text = extract_text(filepath)
-        await process_and_store_document(text, original_filename)
+        before_hash = time.monotonic()
+        file_hash = await compute_sha256(filepath)
+        after_hash = time.monotonic()
+        logging.info(f"Time taken to hash: {(after_hash-before_hash):.2f} seconds")
+        existing = await file_collection.find_one({"hash": file_hash})
+        if existing:
+            logging.info(f"File already processed: {existing['filename']}")
+            filename = existing['filename']
+        else:
+            text = extract_text(filepath)
+            await process_and_store_document(text, original_filename)
+            await file_collection.insert_one({"hash": file_hash, "filename": original_filename})
+            filename=original_filename
+            logging.info("File Processed")
+        # filename=original_filename
+
+        # text = extract_text(filepath)
+        # await process_and_store_document(text, original_filename)
 
         response = {"answers": []}
         response['answers'] = await asyncio.gather(*[
-            answer_query(question, original_filename) for question in payload.questions
+            answer_query(question, filename) for question in payload.questions
         ])
         # for question in payload.questions:
             # result = await pdf_ai_expert.run(f"source_file is {original_filename}. user_query: {question}")
