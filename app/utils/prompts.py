@@ -41,7 +41,7 @@ You are an expert document analysis agent specializing in processing natural lan
 - **Documentation Requirements**: Required evidence or approvals
 
 ## Response Format
-Output to the point answer of the query. The answer should in **plain text"" and very short (1 line).
+Output to the point answer of the query. The answer should in **plain text** and should be in a single paragraph and very short (3 line).
 
 ## Quality Standards
 
