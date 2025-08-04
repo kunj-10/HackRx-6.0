@@ -27,7 +27,7 @@ async def run_hackrx(
         start_time = time.monotonic()
         logging.info(f"Input: {payload}")
 
-        filepath, original_filename = save_file_from_url(payload.documents)
+        filepath, original_filename = await save_file_from_url(payload.documents)
 
         before_hash = time.monotonic()
         file_hash = await compute_sha256(filepath)
