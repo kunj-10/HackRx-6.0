@@ -55,6 +55,8 @@ async def get_embedding(text: str) -> List[float]:
         return [0] * 1536
 
 async def get_title_and_summary(chunk: str) -> Dict[str, str]:
+    return {"title": "Error processing title", "summary": "Error processing summary"}
+
     system_prompt = """You are an AI that extracts titles from documentation chunks.
     For the title: If this seems like the start of a document, extract its title. If it's a middle chunk, derive a descriptive title.
     Keep both title concise but informative."""
