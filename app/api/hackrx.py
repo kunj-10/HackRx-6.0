@@ -25,6 +25,7 @@ async def run_hackrx(
 ):
     try:
         start_time = time.monotonic()
+        logging.info(f"Document URL: {payload.documents}")
 
         filepath, original_filename = save_file_from_url(payload.documents)
 
