@@ -26,7 +26,7 @@ async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -
         return "No relevant chunks found."
 
     result = "\n\n------\n\n".join([
-        f"{r['content']}" for r in result.data
+        f"{r['title']} --- {r['content']}" for r in result.data
     ])
 
     return result
@@ -35,8 +35,11 @@ async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -
 async def answer_query(user_query: str, source_file: str) -> str:
     try:
         context = await retrieve_relevant_pdf_chunks(user_query, source_file)
+        print(source_file)
+        
+        # print(context)
 
-        prompt = f"Retrieved Chunks: {context}. \n User Query: {user_query}."
+        # prompt = f"Retrieved Chunks: {context}. \n User Query: {user_query}."
 
         response = await openai_client.chat.completions.create(
             model="gemini-2.5-pro",

@@ -31,6 +31,7 @@ async def run_hackrx(
 
         before_hash = time.monotonic()
         file_hash = await compute_sha256(filepath)
+        # file_hash = ""
         after_hash = time.monotonic()
         
         logging.info(f"Time taken to hash: {(after_hash-before_hash):.2f} seconds")

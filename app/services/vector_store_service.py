@@ -64,7 +64,7 @@ async def get_title_and_summary(chunk: str) -> Dict[str, str]:
             model="gemini-2.0-flash",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Content:\n{chunk[:1000]}..."}
+                {"role": "user", "content": f"Content:\n{chunk}..."}
             ],
             # response_format={"type": "json_object"}
         )
@@ -82,7 +82,7 @@ async def get_title_and_summary(chunk: str) -> Dict[str, str]:
 
 async def process_chunk(chunk: str, chunk_number: int, source_file: str) -> ProcessedChunk:
     extracted = await get_title_and_summary(chunk)
-    chunk = extracted['title'] + " --- " + chunk
+    # chunk = extracted['title'] + " --- " + chunk
     embedding = await get_embedding(chunk)
 
     return ProcessedChunk(
