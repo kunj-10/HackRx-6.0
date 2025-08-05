@@ -3,12 +3,12 @@ import docx
 import email
 import os
 from typing import Optional
+import pandas as pd
 
 
 def sanitize_text(text: str) -> str:
     # Remove null characters and strip
     return text.replace("\x00", "").strip()
-
 
 def extract_from_pdf(file_path: str) -> str:
     try:
@@ -20,7 +20,6 @@ def extract_from_pdf(file_path: str) -> str:
     except Exception as e:
         raise RuntimeError(f"PDF extraction failed: {e}")
 
-
 def extract_from_docx(file_path: str) -> str:
     try:
         doc = docx.Document(file_path)
@@ -28,7 +27,6 @@ def extract_from_docx(file_path: str) -> str:
         return sanitize_text(text)
     except Exception as e:
         raise RuntimeError(f"DOCX extraction failed: {e}")
-
 
 def extract_from_email(file_path: str) -> str:
     try:
@@ -49,6 +47,24 @@ def extract_from_email(file_path: str) -> str:
     except Exception as e:
         raise RuntimeError(f"Email extraction failed: {e}")
 
+def extract_from_csv(file_path: str) -> str:
+    try:
+        df = pd.read_csv(file_path, encoding="utf-8", errors="ignore")
+        return sanitize_text(df.to_markdown(index=False))
+    except Exception as e:
+        raise RuntimeError(f"CSV extraction failed: {e}")
+
+def extract_from_xlsx(file_path: str) -> str:
+    try:
+        df_list = pd.read_excel(file_path, sheet_name=None) 
+        text = ""
+        for sheet_name, df in df_list.items():
+            text += f"Sheet: {sheet_name}\n"
+            text += df.to_markdown(index=False)
+            text += "\n"
+        return sanitize_text(text)
+    except Exception as e:
+        raise RuntimeError(f"XLSX extraction failed: {e}")      
 
 def extract_fallback(file_path: str) -> str:
     try:
@@ -62,7 +78,6 @@ def extract_fallback(file_path: str) -> str:
         except Exception as e:
             raise RuntimeError(f"Fallback extraction failed: {e}")
 
-
 def extract_text(file_path: str, mime_type: Optional[str] = None) -> str:
     ext = os.path.splitext(file_path)[1].lower()
 
@@ -75,6 +90,12 @@ def extract_text(file_path: str, mime_type: Optional[str] = None) -> str:
             return extract_from_docx(file_path)
         elif ext in [".eml", ".msg"] or mime_type == "message/rfc822":
             return extract_from_email(file_path)
+        elif ext == ".csv" or mime_type == "text/csv":
+            return extract_from_csv(file_path)
+        elif ext == ".xlsx" or mime_type in [
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ]:
+            return extract_from_xlsx(file_path)
         else:
             return extract_fallback(file_path)
     except Exception as e:

@@ -11,6 +11,8 @@ from app.services.agent import pdf_ai_expert
 from app.services.rag import answer_query
 from app.utils import compute_sha256
 from app.db.mongo import file_collection
+from urllib.parse import urlparse
+import uuid
 
 hackrx_router = APIRouter()
 
@@ -25,7 +27,20 @@ async def run_hackrx(
 ):
     try:
         start_time = time.monotonic()
-        logging.info(f"Input: {payload}")
+        filepath = ""
+        response = {"answers": []}
+        print_payload = {
+            "documents": payload.documents,
+            "questions": payload.questions
+        }
+
+        logging.info(f"Input: {print_payload}")
+
+        parsed_url = urlparse(str(payload.documents))
+        original_filename = f"{uuid.uuid4()}_{os.path.basename(parsed_url.path)}"
+
+        ext = os.path.splitext(original_filename)[1].lower()
+        if ext not in [".pdf", ".docx", ".eml", ".msg", ".pptx", ".xlsx", ".csv"]: return response
 
         filepath, original_filename = await save_file_from_url(payload.documents)
 
@@ -53,7 +68,6 @@ async def run_hackrx(
         # text = extract_text(filepath)
         # await process_and_store_document(text, original_filename)
 
-        response = {"answers": []}
         response['answers'] = await asyncio.gather(*[
             answer_query(question, filename) for question in payload.questions
         ])
