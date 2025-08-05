@@ -32,9 +32,9 @@ attrs==25.3.0
     #   aiohttp
     #   jsonschema
     #   referencing
-boto3==1.40.1
+boto3==1.40.2
     # via pydantic-ai-slim
-botocore==1.40.1
+botocore==1.40.2
     # via
     #   boto3
     #   s3transfer
@@ -87,7 +87,9 @@ google-auth==2.40.3
     #   google-genai
     #   pydantic-ai-slim
 google-genai==1.28.0
-    # via pydantic-ai-slim
+    # via
+    #   hackrx (pyproject.toml)
+    #   pydantic-ai-slim
 gotrue==2.12.3
     # via supabase
 greenlet==3.2.3
@@ -167,7 +169,7 @@ langchain-core==0.3.72
     #   langchain-text-splitters
 langchain-text-splitters==0.3.9
     # via langchain
-langsmith==0.4.10
+langsmith==0.4.11
     # via
     #   langchain
     #   langchain-core
@@ -176,7 +178,9 @@ logfire-api==4.1.0
     #   pydantic-evals
     #   pydantic-graph
 lxml==6.0.0
-    # via python-docx
+    # via
+    #   python-docx
+    #   python-pptx
 markdown-it-py==3.0.0
     # via rich
 mcp==1.12.3
@@ -191,6 +195,8 @@ multidict==6.6.3
     # via
     #   aiohttp
     #   yarl
+numpy==2.3.2
+    # via pandas
 openai==1.98.0
     # via
     #   hackrx (pyproject.toml)
@@ -205,6 +211,10 @@ packaging==25.0
     #   huggingface-hub
     #   langchain-core
     #   langsmith
+pandas==2.3.1
+    # via hackrx (pyproject.toml)
+pillow==11.3.0
+    # via python-pptx
 postgrest==1.1.1
     # via supabase
 prompt-toolkit==3.0.51
@@ -240,9 +250,9 @@ pydantic==2.11.7
     #   pydantic-graph
     #   pydantic-settings
     #   realtime
-pydantic-ai==0.4.11
+pydantic-ai==0.5.0
     # via hackrx (pyproject.toml)
-pydantic-ai-slim==0.4.11
+pydantic-ai-slim==0.5.0
     # via
     #   pydantic-ai
     #   pydantic-evals
@@ -250,9 +260,9 @@ pydantic-core==2.33.2
     # via
     #   cohere
     #   pydantic
-pydantic-evals==0.4.11
+pydantic-evals==0.5.0
     # via pydantic-ai-slim
-pydantic-graph==0.4.11
+pydantic-graph==0.5.0
     # via pydantic-ai-slim
 pydantic-settings==2.10.1
     # via mcp
@@ -268,6 +278,7 @@ python-dateutil==2.9.0.post0
     # via
     #   botocore
     #   mistralai
+    #   pandas
     #   storage3
 python-docx==1.2.0
     # via hackrx (pyproject.toml)
@@ -277,6 +288,10 @@ python-dotenv==1.1.1
     #   pydantic-settings
 python-multipart==0.0.20
     # via mcp
+python-pptx==1.0.2
+    # via hackrx (pyproject.toml)
+pytz==2025.2
+    # via pandas
 pyyaml==6.0.2
     # via
     #   huggingface-hub
@@ -366,6 +381,7 @@ typing-extensions==4.14.1
     #   pydantic
     #   pydantic-core
     #   python-docx
+    #   python-pptx
     #   realtime
     #   referencing
     #   sqlalchemy
@@ -378,6 +394,8 @@ typing-inspection==0.4.1
     #   pydantic-ai-slim
     #   pydantic-graph
     #   pydantic-settings
+tzdata==2025.2
+    # via pandas
 urllib3==2.5.0
     # via
     #   botocore
@@ -391,6 +409,8 @@ websockets==15.0.1
     # via
     #   google-genai
     #   realtime
+xlsxwriter==3.2.5
+    # via python-pptx
 yarl==1.20.1
     # via aiohttp
 zipp==3.23.0
