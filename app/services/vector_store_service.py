@@ -99,7 +99,7 @@ async def get_title_and_summary(chunk: str) -> Dict[str, str]:
 async def get_embedding(text: str) -> List[float]:
     try:
         response = await openai_client.embeddings.create(
-            model="gemini-embedding-exp-03-07",
+            model="gemini-embedding-001",
             dimensions=1536,
             input=text
         )

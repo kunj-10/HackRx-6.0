@@ -16,12 +16,16 @@ client = genai.Client()
 
 async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -> str:
     embedding = await get_embedding(user_query)
-
+    retrieve = 3
+     
+    # if source_file.split('.')[-1] == 'xlsx':
+    #     retrieve = 1
+    # print(retrieve)
     result = supabase.rpc(
         'match_pdf_chunks',
         {
             'query_embedding': embedding,
-            'match_count': 3,
+            'match_count': retrieve,
             'source': source_file
         }
     ).execute()
