@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, HttpUrl
-from app.utils import extract_text, save_file_from_url
+from app.utils import extract_text, save_file_from_url, EXT_TO_MIME
 from typing import List
 import logging
 import time
@@ -8,7 +8,7 @@ import os
 import asyncio
 from app.services.vector_store_service import process_and_store_document
 from app.services.agent import pdf_ai_expert
-from app.services.rag import answer_query
+from app.services.rag import answer_query, answer_image_query, read_image
 from app.utils import compute_sha256
 from app.db.mongo import file_collection
 from urllib.parse import urlparse
@@ -40,10 +40,18 @@ async def run_hackrx(
         original_filename = f"{uuid.uuid4()}_{os.path.basename(parsed_url.path)}"
 
         ext = os.path.splitext(original_filename)[1].lower()
-        if ext not in [".pdf", ".docx", ".eml", ".msg", ".pptx", ".xlsx", ".csv"]: return response
+        if ext not in [".pdf", ".docx", ".eml", ".msg", ".pptx", ".xlsx", ".csv"] and ext[1:] not in EXT_TO_MIME.keys(): return response
 
         filepath, original_filename = await save_file_from_url(payload.documents)
 
+        if ext[1:] in EXT_TO_MIME.keys():
+            image_text = read_image(url=filepath, mime_type=EXT_TO_MIME[ext[1:]])
+            response['answers'] = await asyncio.gather(*[
+                answer_image_query(question, image_text) for question in payload.questions
+            ])
+    
+            logging.info(f"response: {response}")
+            return response
         before_hash = time.monotonic()
         file_hash = await compute_sha256(filepath)
         # file_hash = ""
