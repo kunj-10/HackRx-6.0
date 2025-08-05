@@ -4,6 +4,8 @@ import email
 import os
 from typing import Optional
 import pandas as pd
+from pptx import Presentation
+from app.services.rag import read_image
 
 
 def sanitize_text(text: str) -> str:
@@ -66,6 +68,59 @@ def extract_from_xlsx(file_path: str) -> str:
     except Exception as e:
         raise RuntimeError(f"XLSX extraction failed: {e}")      
 
+EXT_TO_MIME = {
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "png": "image/png",
+    "gif": "image/gif",
+    "bmp": "image/bmp",
+    "tiff": "image/tiff",
+    "svg": "image/svg+xml",
+}
+
+def extract_from_pptx(file_path: str) -> str:
+    prs = Presentation(file_path)
+    extracted_content = []
+
+    for slide_num, slide in enumerate(prs.slides, 1):
+        slide_content = {
+            'slide_number': slide_num,
+            'text': '',
+            'images': []
+        }
+
+        text_parts = []
+        for shape in slide.shapes:
+            if hasattr(shape, 'text'):
+                text_parts.append(shape.text)
+        
+        slide_content['text'] = '\n'.join(text_parts)
+        
+        for shape in slide.shapes:
+            if shape.shape_type == 13: 
+                image = shape.image
+                image_bytes = image.blob
+                ext = image.ext.lower()
+                mime_type = EXT_TO_MIME.get(ext, "application/octet-stream")
+                image_content = read_image(image_bytes=image_bytes, mime_type=mime_type)
+                
+                slide_content['images'].append(image_content)
+        
+        extracted_content.append(slide_content)
+    
+    output_lines = []
+
+    for slide in extracted_content:
+        slide_str = f"Slide Number: {slide['slide_number']}\t"
+        slide_str += f"Text: {slide['text']}\t"
+        
+        for idx, image in enumerate(slide['images'], 1):
+            slide_str += f"Related_image_description_{idx}: {image}\t"
+
+        output_lines.append(slide_str.strip())
+
+    return "\n\n".join(output_lines)
+
 def extract_fallback(file_path: str) -> str:
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
@@ -96,6 +151,10 @@ def extract_text(file_path: str, mime_type: Optional[str] = None) -> str:
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         ]:
             return extract_from_xlsx(file_path)
+        elif ext == ".pptx" or mime_type in [
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        ]:
+            return extract_from_pptx(file_path)
         else:
             return extract_fallback(file_path)
     except Exception as e:

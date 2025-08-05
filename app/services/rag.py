@@ -54,8 +54,8 @@ async def answer_query(user_query: str, source_file: str) -> str:
     except Exception as e:
         logging.error(f"Error getting answer: {e}")
 
-def read_image(url: str, mime_type: str = "image/jpeg") -> str:
-    image_bytes = requests.get(url).content
+def read_image(url: str = None, image_bytes = None, mime_type: str = "image/jpeg") -> str:
+    if url: image_bytes = requests.get(url).content
     image = types.Part.from_bytes(
         data=image_bytes, 
         mime_type=mime_type
@@ -91,12 +91,9 @@ async def answer_image_query(user_query: str, image_text: str) -> str:
 
 
 async def main():
-    # image_text = read_image("https://hackrx.blob.core.windows.net/assets/Test%20/image.jpeg?sv=2023-01-03&spr=https&st=2025-08-04T19%3A29%3A01Z&se=2026-08-05T19%3A29%3A00Z&sr=b&sp=r&sig=YnJJThygjCT6%2FpNtY1aHJEZ%2F%2BqHoEB59TRGPSxJJBwo%3D")
-    
-    image_text = read_image("https://hackrx.blob.core.windows.net/assets/Test%20/image.png?sv=2023-01-03&spr=https&st=2025-08-04T19%3A21%3A45Z&se=2026-08-05T19%3A21%3A00Z&sr=b&sp=r&sig=lAn5WYGN%2BUAH7mBtlwGG4REw5EwYfsBtPrPuB0b18M4%3D", mime_type="image/png")
-
-    answer = await answer_image_query("What is the daily limit for room, boarding, and nursing expenses for a sum insured of 4 lakhs?", image_text)
-    print(f"\n --------- \n {answer}")
+   pass
+    # answer = await answer_image_query("What is the daily limit for room, boarding, and nursing expenses for a sum insured of 4 lakhs?", image_text)
+    # print(f"\n --------- \n {answer}")
 
 if __name__ == "__main__":
     import asyncio
