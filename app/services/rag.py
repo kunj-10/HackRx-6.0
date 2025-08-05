@@ -1,4 +1,7 @@
 from dotenv import load_dotenv
+from google.genai import types
+from google import genai
+import requests
 import logging
 
 from app.utils import RAG_AGENT_SYSTEM_PROMPT
@@ -9,6 +12,7 @@ from app.services.vector_store_service import (
 )
 
 load_dotenv()
+client = genai.Client()
 
 async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -> str:
     embedding = await get_embedding(user_query)
@@ -31,7 +35,6 @@ async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -
 
     return result
 
-
 async def answer_query(user_query: str, source_file: str) -> str:
     try:
         context = await retrieve_relevant_pdf_chunks(user_query, source_file)
@@ -50,3 +53,51 @@ async def answer_query(user_query: str, source_file: str) -> str:
         return content
     except Exception as e:
         logging.error(f"Error getting answer: {e}")
+
+def read_image(url: str, mime_type: str = "image/jpeg") -> str:
+    image_bytes = requests.get(url).content
+    image = types.Part.from_bytes(
+        data=image_bytes, 
+        mime_type=mime_type
+    )
+
+
+    response = client.models.generate_content(
+        model="gemini-2.5-pro",
+        contents=["Give all the details of the image in text, so that the other agent can answer questions on the image based on the text you give.", image],
+    )
+
+    print(response.text)
+    return response.text
+
+
+async def answer_image_query(user_query: str, image_text: str) -> str:
+    try:
+        system_prompt = """ You are tasked to answer the question asked by the user on the basis of the image given. The image model has convertad the image into text describing the image. You will receive that description along with the query. You need to answer user's query in short. Your answer should be short and to the point. If the image does not contain answer of the query, then answer it correctly by your own. Try to identidy patterns from the image before answering by your own.  """
+        prompt = f"Text description of the image given by user: {image_text}. \n User Query: {user_query}."
+
+        response = await openai_client.chat.completions.create(
+            model="gemini-2.5-pro",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        content = response.choices[0].message.content
+        return content
+    except Exception as e:
+        logging.error(f"Error getting answer: {e}")
+
+
+async def main():
+    # image_text = read_image("https://hackrx.blob.core.windows.net/assets/Test%20/image.jpeg?sv=2023-01-03&spr=https&st=2025-08-04T19%3A29%3A01Z&se=2026-08-05T19%3A29%3A00Z&sr=b&sp=r&sig=YnJJThygjCT6%2FpNtY1aHJEZ%2F%2BqHoEB59TRGPSxJJBwo%3D")
+    
+    image_text = read_image("https://hackrx.blob.core.windows.net/assets/Test%20/image.png?sv=2023-01-03&spr=https&st=2025-08-04T19%3A21%3A45Z&se=2026-08-05T19%3A21%3A00Z&sr=b&sp=r&sig=lAn5WYGN%2BUAH7mBtlwGG4REw5EwYfsBtPrPuB0b18M4%3D", mime_type="image/png")
+
+    answer = await answer_image_query("What is the daily limit for room, boarding, and nursing expenses for a sum insured of 4 lakhs?", image_text)
+    print(f"\n --------- \n {answer}")
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())

@@ -15,4 +15,5 @@ dependencies = [
     "motor>=3.7.1",
     "python-docx>=1.2.0",
     "langchain>=0.3.27",
+    "google-genai>=1.28.0",
 ]
