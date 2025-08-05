@@ -34,7 +34,7 @@ class ProcessedChunk:
     embedding: List[float]
     source_file: str
 
-def chunk_text(text: str, chunk_size: int = 3000, chunk_overlap: int = 100) -> List[str]:
+def chunk_text(text: str, chunk_size: int = 5000, chunk_overlap: int = 100) -> List[str]:
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
