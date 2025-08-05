@@ -25,8 +25,8 @@ async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -
     if not result.data:
         return "No relevant chunks found."
 
-    result = "\n\n------\n\n".join([
-        f"{r['title']} --- {r['content']}" for r in result.data
+    result = "\n\n---\n\n".join([
+        f"{r['content']}" for r in result.data
     ])
 
     return result
@@ -35,9 +35,6 @@ async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -
 async def answer_query(user_query: str, source_file: str) -> str:
     try:
         context = await retrieve_relevant_pdf_chunks(user_query, source_file)
-        # print(source_file)
-        
-        # print(context)
 
         prompt = f"Retrieved Chunks: {context}. \n User Query: {user_query}."
 
@@ -52,4 +49,4 @@ async def answer_query(user_query: str, source_file: str) -> str:
         content = response.choices[0].message.content
         return content
     except Exception as e:
-        logging.error(f"Error getting title and summary: {e}")
+        logging.error(f"Error getting answer: {e}")
