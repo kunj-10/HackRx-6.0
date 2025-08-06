@@ -4,12 +4,13 @@ import fitz
 import asyncio
 import logging
 from typing import List, Dict
-from dataclasses import dataclass
 from dotenv import load_dotenv
+from dataclasses import dataclass
 
 from openai import AsyncOpenAI
 from supabase import create_client, Client
 
+from app.services.chunker import token_chunking
 from app.core import get_settings
 settings = get_settings()
 
@@ -33,36 +34,6 @@ class ProcessedChunk:
     content: str
     embedding: List[float]
     source_file: str
-
-def chunk_text(text: str, chunk_size: int = 5000) -> List[str]:
-    chunks = []
-    start = 0
-    text_length = len(text)
-
-    while start < text_length:
-        end = start + chunk_size
-        chunk = text[start:end]
-
-        if end >= text_length:
-            chunks.append(text[start:].strip())
-            break
-
-        if '\n\n' in chunk:
-            last_break = chunk.rfind('\n\n')
-            if last_break > chunk_size * 0.3:
-                end = start + last_break
-        elif '. ' in chunk:
-            last_period = chunk.rfind('. ')
-            if last_period > chunk_size * 0.3:
-                end = start + last_period + 1
-
-        chunk = text[start:end].strip()
-        if chunk:
-            chunks.append(chunk)
-
-        start = max(start + 1, end)
-
-    return chunks
 
 async def get_title_and_summary(chunk: str) -> Dict[str, str]:
     return {"title": "Error processing title", "summary": "Error processing summary"}
@@ -141,7 +112,8 @@ async def insert_chunk(chunk: ProcessedChunk):
         return None
 
 async def process_and_store_document(text: str, source_file: str):
-    chunks = chunk_text(text)
+    chunks = token_chunking(text)
+
     # for i, chunk in enumerate(chunks):
     #     pc = await process_chunk(chunk, i, source_file)
     #     await insert_chunk(pc)
@@ -151,21 +123,3 @@ async def process_and_store_document(text: str, source_file: str):
     ])
     
     await asyncio.gather(*[insert_chunk(c) for c in processed])
-
-def extract_text_from_pdf(pdf_path: str) -> str:
-    doc = fitz.open(pdf_path)
-    full_text = ""
-    for page in doc:
-        full_text += page.get_text()
-    doc.close()
-    return full_text
-
-async def main():
-    pdf_path = "data/three.pdf"
-    source_file = os.path.basename(pdf_path)
-
-    text = extract_text_from_pdf(pdf_path)
-    await process_and_store_document(text, source_file)
-
-if __name__ == "__main__":
-    asyncio.run(main())
