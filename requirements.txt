@@ -32,9 +32,9 @@ attrs==25.3.0
     #   aiohttp
     #   jsonschema
     #   referencing
-boto3==1.40.2
+boto3==1.40.3
     # via pydantic-ai-slim
-botocore==1.40.2
+botocore==1.40.3
     # via
     #   boto3
     #   s3transfer
@@ -96,9 +96,9 @@ gotrue==2.12.3
     # via supabase
 greenlet==3.2.3
     # via sqlalchemy
-griffe==1.9.0
+griffe==1.10.0
     # via pydantic-ai-slim
-groq==0.30.0
+groq==0.31.0
     # via pydantic-ai-slim
 h11==0.16.0
     # via
@@ -106,7 +106,7 @@ h11==0.16.0
     #   uvicorn
 h2==4.2.0
     # via httpx
-hf-xet==1.1.5
+hf-xet==1.1.7
     # via huggingface-hub
 hpack==4.1.0
     # via h2
@@ -171,7 +171,7 @@ langchain-core==0.3.72
     #   langchain-text-splitters
 langchain-text-splitters==0.3.9
     # via langchain
-langsmith==0.4.11
+langsmith==0.4.12
     # via
     #   langchain
     #   langchain-core
@@ -199,7 +199,7 @@ multidict==6.6.3
     #   yarl
 numpy==2.3.2
     # via pandas
-openai==1.99.0
+openai==1.99.1
     # via
     #   hackrx (pyproject.toml)
     #   pydantic-ai-slim
@@ -254,9 +254,9 @@ pydantic==2.11.7
     #   pydantic-graph
     #   pydantic-settings
     #   realtime
-pydantic-ai==0.5.0
+pydantic-ai==0.5.1
     # via hackrx (pyproject.toml)
-pydantic-ai-slim==0.5.0
+pydantic-ai-slim==0.5.1
     # via
     #   pydantic-ai
     #   pydantic-evals
@@ -264,9 +264,9 @@ pydantic-core==2.33.2
     # via
     #   cohere
     #   pydantic
-pydantic-evals==0.5.0
+pydantic-evals==0.5.1
     # via pydantic-ai-slim
-pydantic-graph==0.5.0
+pydantic-graph==0.5.1
     # via pydantic-ai-slim
 pydantic-settings==2.10.1
     # via mcp
@@ -302,12 +302,14 @@ pyyaml==6.0.2
     #   langchain
     #   langchain-core
     #   pydantic-evals
-realtime==2.6.0
+realtime==2.7.0
     # via supabase
 referencing==0.36.2
     # via
     #   jsonschema
     #   jsonschema-specifications
+regex==2025.7.34
+    # via tiktoken
 requests==2.32.4
     # via
     #   cohere
@@ -317,6 +319,7 @@ requests==2.32.4
     #   langsmith
     #   pydantic-ai-slim
     #   requests-toolbelt
+    #   tiktoken
 requests-toolbelt==1.0.0
     # via langsmith
 rich==14.1.0
@@ -348,11 +351,11 @@ starlette==0.47.2
     #   fastapi
     #   mcp
     #   pydantic-ai-slim
-storage3==0.12.0
+storage3==0.12.1
     # via supabase
 strenum==0.4.15
     # via supafunc
-supabase==2.17.0
+supabase==2.18.0
     # via hackrx (pyproject.toml)
 supafunc==0.10.1
     # via supabase
@@ -363,6 +366,8 @@ tenacity==8.5.0
     #   google-genai
     #   langchain-core
     #   pydantic-ai-slim
+tiktoken==0.10.0
+    # via hackrx (pyproject.toml)
 tokenizers==0.21.4
     # via cohere
 tqdm==4.67.1
