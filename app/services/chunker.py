@@ -24,11 +24,11 @@ def find_smart_boundary(chunk_text: str) -> str:
     
     return chunk_text.strip()
 
-def token_chunking(text: str, model_name: str = "gpt-4", max_tokens: int = 1000, overlap_tokens: int = 100) -> List[str]:
+def token_chunking(text: str, max_tokens: int = 1500, overlap_tokens: int = 50) -> List[str]:
     if not text.strip():
         return []
     
-    encoding = tiktoken.encoding_for_model(model_name)
+    encoding = tiktoken.get_encoding("cl100k_base")  # same tokenizer as OpenAI/Gemini-compatible
     tokens = encoding.encode(text)
     
     if len(tokens) <= max_tokens:
@@ -44,7 +44,7 @@ def token_chunking(text: str, model_name: str = "gpt-4", max_tokens: int = 1000,
         chunk = encoding.decode(chunk_tokens)
         
         if end_idx < len(tokens):
-            chunk = find_smart_boundary(chunk, text, start_idx, end_idx)
+            chunk = find_smart_boundary(chunk)
         
         chunk = chunk.strip()
         if chunk:
@@ -87,3 +87,15 @@ def cahrcter_chunking(text: str, chunk_size: int = 1000) -> List[str]:
         start = max(start + 1, end)
 
     return chunks
+
+if __name__ == "__main__":
+    text = """The Gemini API offers text embedding models to generate embeddings for words, phrases, sentences, and code. These foundational embeddings power advanced NLP tasks such as semantic search, classification, and clustering, providing more accurate, context-aware results than keyword-based approaches.
+
+Building Retrieval Augmented Generation (RAG) systems is a common use case for embeddings. Embeddings play a key role in significantly enhancing model outputs with improved factual accuracy, coherence, and contextual richness. They efficiently retrieve relevant information from knowledge bases, represented by embeddings, which are then passed as additional context in the input prompt to language models, guiding it to generate more informed and accurate responses.
+
+To learn more about the available embedding model variants, see the Model versions section. For enterprise-grade applications and high-volume workloads, we suggest using embedding models on Vertex AI."""
+
+    chunks = token_chunking(text)
+    print(len(chunks))
+    for chunk in chunks:
+        print(chunk, end="\n -------------- \n")

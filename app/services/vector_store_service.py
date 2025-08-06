@@ -1,6 +1,4 @@
-import os
 import json
-import fitz 
 import asyncio
 import logging
 from typing import List, Dict
