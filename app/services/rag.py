@@ -3,8 +3,10 @@ from google.genai import types
 from google import genai
 import requests
 import logging
+import httpx
+import io
 
-from app.utils import RAG_AGENT_SYSTEM_PROMPT
+from app.utils import RAG_AGENT_SYSTEM_PROMPT, PDF_AGENT_PROMPT
 from app.services.vector_store_service import (
     supabase,
     openai_client,
@@ -93,12 +95,26 @@ async def answer_image_query(user_query: str, image_text: str) -> str:
     except Exception as e:
         logging.error(f"Error getting answer: {e}")
 
+async def pdf_query(url: str, questions: list) -> list:
+    doc_io = io.BytesIO(httpx.get(url).content)
 
-async def main():
-   pass
-    # answer = await answer_image_query("What is the daily limit for room, boarding, and nursing expenses for a sum insured of 4 lakhs?", image_text)
-    # print(f"\n --------- \n {answer}")
+    sample_doc = client.files.upload(
+    file=doc_io,
+    config=dict(
+        mime_type='application/pdf')
+    )
 
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[
+            sample_doc, 
+            PDF_AGENT_PROMPT(questions)
+        ],
+        config={
+            "response_mime_type": "application/json",
+            "response_schema": list[str],
+        },
+    )
+
+    answers = response.parsed
+    return answers

@@ -7,8 +7,7 @@ import time
 import os
 import asyncio
 from app.services.vector_store_service import process_and_store_document
-from app.services.agent import pdf_ai_expert
-from app.services.rag import answer_query, answer_image_query, read_image
+from app.services.rag import answer_query, answer_image_query, read_image, pdf_query
 from app.utils import compute_sha256
 from app.db.mongo import file_collection
 from urllib.parse import urlparse
@@ -46,6 +45,11 @@ async def run_hackrx(
             response['answers'] = await asyncio.gather(*[
                 answer_image_query(question, image_text) for question in payload.questions
             ])
+    
+            logging.info(f"response: {response}")
+            return response
+        elif ext[1:] == "pdf":
+            response['answers'] = await pdf_query(payload.documents, payload.questions)
     
             logging.info(f"response: {response}")
             return response
