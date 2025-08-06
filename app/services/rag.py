@@ -104,7 +104,7 @@ async def pdf_query(url: str, questions: list) -> list:
         mime_type='application/pdf')
     )
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.5-pro",
         contents=[
             sample_doc, 
             PDF_AGENT_PROMPT(questions)
