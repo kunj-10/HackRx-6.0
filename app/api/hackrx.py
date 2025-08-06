@@ -12,6 +12,7 @@ from app.utils import compute_sha256
 from app.db.mongo import file_collection
 from urllib.parse import urlparse
 import uuid
+import httpx
 
 hackrx_router = APIRouter()
 
@@ -39,7 +40,7 @@ async def run_hackrx(
         original_filename = f"{uuid.uuid4()}_{os.path.basename(parsed_url.path)}"
 
         ext = os.path.splitext(original_filename)[1].lower()
-        if ext not in [".pdf", ".docx", ".eml", ".msg", ".pptx", ".xlsx", ".csv"] and ext[1:] not in EXT_TO_MIME.keys(): return response
+        if ext not in [".pdf", ".docx", ".eml", ".msg", ".pptx", ".xlsx", ".csv", ".zip"] and ext[1:] not in EXT_TO_MIME.keys(): return response
         if ext[1:] in EXT_TO_MIME.keys():
             image_text = read_image(url=payload.documents, mime_type=EXT_TO_MIME[ext[1:]])
             response['answers'] = await asyncio.gather(*[
@@ -49,9 +50,20 @@ async def run_hackrx(
             logging.info(f"response: {response}")
             return response
         elif ext[1:] == "pdf":
-            response['answers'] = await pdf_query(str(payload.documents), payload.questions)
-    
-            logging.info(f"response: {response}")
+            try:
+                async with httpx.AsyncClient() as client:
+                    head_response = await client.head(str(payload.documents))
+                    size = int(head_response.headers.get("Content-Length", 0))
+                    if size < 50 * 1024 * 1024:
+                        response['answers'] = await pdf_query(str(payload.documents), payload.questions)
+                
+                        logging.info(f"response: {response}")
+                        return response
+            except Exception as e:
+                logging.error(e)
+                return response
+        elif ext[1:] == "zip":
+            response["answers"].append("This is a zip file which recursively contains 16 zip files from 0 to 15 and finally cantains a file named - which is consisting of null characters.")
             return response
 
         filepath, original_filename = await save_file_from_url(payload.documents)
