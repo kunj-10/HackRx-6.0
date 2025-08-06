@@ -103,7 +103,6 @@ async def pdf_query(url: str, questions: list) -> list:
     config=dict(
         mime_type='application/pdf')
     )
-
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=[

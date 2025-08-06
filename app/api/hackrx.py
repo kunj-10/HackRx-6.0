@@ -49,7 +49,7 @@ async def run_hackrx(
             logging.info(f"response: {response}")
             return response
         elif ext[1:] == "pdf":
-            response['answers'] = await pdf_query(payload.documents, payload.questions)
+            response['answers'] = await pdf_query(str(payload.documents), payload.questions)
     
             logging.info(f"response: {response}")
             return response
