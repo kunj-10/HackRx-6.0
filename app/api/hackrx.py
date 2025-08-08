@@ -86,15 +86,10 @@ async def run_hackrx(
         # text = extract_text(filepath)
         # await process_and_store_document(text, original_filename)
 
-        # response['answers'] = await asyncio.gather(*[
-        #     answer_query(question, filename) for question in payload.questions
-        # ])
-
-        text = extract_text(filepath)
         response['answers'] = await asyncio.gather(*[
-            answer_query(f"pdf text: {text} user query: {question}") for question in payload.questions
+            answer_query(question, filename) for question in payload.questions
         ])
- 
+
         logging.info(f"response: {response}")
         return response
     except Exception as e:
