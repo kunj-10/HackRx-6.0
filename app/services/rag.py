@@ -19,6 +19,7 @@ from app.utils import (
     RAG_AGENT_SYSTEM_PROMPT,
     PDF_AGENT_PROMPT
 )
+from app.services.round_robin import RoundRobin
 
 load_dotenv()
 client = genai.Client()
@@ -53,7 +54,9 @@ async def answer_query(user_query: str, source_file: str = None) -> str:
         if source_file:
             context = await retrieve_relevant_pdf_chunks(user_query, source_file)
             prompt = f"Retrieved Chunks: {context}. \n User Query: {user_query}."
-        else: prompt = user_query
+        else: 
+            prompt = user_query
+
         # response = await openai_client.chat.completions.create(
         #     model="gemini-2.5-pro",
         #     messages=[
@@ -64,11 +67,22 @@ async def answer_query(user_query: str, source_file: str = None) -> str:
 
         # content = response.choices[0].message.content
         # return content
-        async with httpx.AsyncClient() as client:
-            api_deps = ApiDependencies(http_client=client)
-            result = await agent.run(prompt, deps=api_deps)
 
-            return result.output
+        # async with httpx.AsyncClient() as client:
+        #     api_deps = ApiDependencies(http_client=client)
+        #     result = await agent.run(prompt, deps=api_deps)
+
+        #     return result.output
+
+        import os
+        keys = []
+        for i in range(5):
+            keys.append(os.getenv(f"KEY{i + 1}"))
+
+        rr = RoundRobin(keys)
+        result  = await rr.run(prompt)
+        return result
+
     except Exception as e:
         logging.error(f"Error getting answer: {e}")
 
@@ -128,14 +142,3 @@ async def pdf_query(url: str, questions: list) -> list:
     answers = response.parsed
     return answers
 
-# async def main():
-#     prompt = "Please fetch the details for the user with ID 1 from the JSONPlaceholder API."
-#     print(f"User Prompt: {prompt}\n")
-
-#     async with httpx.AsyncClient() as client:
-#         api_deps = ApiDependencies(http_client=client)
-#         result = await agent.run(prompt, deps=api_deps)
-
-#         print("--- Agent Final Output ---")
-#         import json
-#         print(json.dumps(result.output, indent=2))
