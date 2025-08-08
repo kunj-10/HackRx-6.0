@@ -40,7 +40,14 @@ async def run_hackrx(
         original_filename = f"{uuid.uuid4()}_{os.path.basename(parsed_url.path)}"
 
         ext = os.path.splitext(original_filename)[1].lower()
-        if ext not in [".pdf", ".docx", ".eml", ".msg", ".pptx", ".xlsx", ".csv", ".zip"] and ext[1:] not in EXT_TO_MIME.keys(): return response
+        if ext not in [".pdf", ".docx", ".eml", ".msg", ".pptx", ".xlsx", ".csv", ".zip"] and ext[1:] not in EXT_TO_MIME.keys(): 
+            response['answers'] = await asyncio.gather(*[
+                answer_query(f"link: {payload.documents} Question: {question}") for question in payload.questions
+            ])
+            logging.info(f"response: {response}")
+            return response
+
+            
         if ext[1:] in EXT_TO_MIME.keys():
             image_text = read_image(url=payload.documents, mime_type=EXT_TO_MIME[ext[1:]])
             response['answers'] = await asyncio.gather(*[

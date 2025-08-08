@@ -48,11 +48,12 @@ async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -
 
     return result
 
-async def answer_query(user_query: str, source_file: str) -> str:
+async def answer_query(user_query: str, source_file: str = None) -> str:
     try:
-        context = await retrieve_relevant_pdf_chunks(user_query, source_file)
-        prompt = f"Retrieved Chunks: {context}. \n User Query: {user_query}."
-
+        if source_file:
+            context = await retrieve_relevant_pdf_chunks(user_query, source_file)
+            prompt = f"Retrieved Chunks: {context}. \n User Query: {user_query}."
+        else: prompt = user_query
         # response = await openai_client.chat.completions.create(
         #     model="gemini-2.5-pro",
         #     messages=[
@@ -63,7 +64,6 @@ async def answer_query(user_query: str, source_file: str) -> str:
 
         # content = response.choices[0].message.content
         # return content
-
         async with httpx.AsyncClient() as client:
             api_deps = ApiDependencies(http_client=client)
             result = await agent.run(prompt, deps=api_deps)
