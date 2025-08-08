@@ -7,10 +7,6 @@ import logging
 import httpx
 
 from app.utils import RAG_AGENT_SYSTEM_PROMPT
-from app.services.vector_store_service import (
-    supabase,
-    get_embedding
-)
 
 load_dotenv()
 
@@ -21,7 +17,7 @@ class ApiDependencies:
 agent = Agent(
     "google-gla:gemini-2.5-pro",
     system_prompt=RAG_AGENT_SYSTEM_PROMPT,
-    deps=ApiDependencies,
+    deps_type=ApiDependencies,
     retries=2
 )
 
