@@ -1,7 +1,6 @@
 from pydantic_ai.providers.openai import OpenAIProvider
-from typing import Literal, Optional, Any, Dict, List
+from typing import Literal, Optional, Any, Dict
 from pydantic_ai.models.openai import OpenAIModel
-from crawl4ai import AsyncWebCrawler
 from openai import RateLimitError
 from dotenv import load_dotenv
 from pydantic_ai import Agent
