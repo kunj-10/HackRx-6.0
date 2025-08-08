@@ -13,3 +13,6 @@ __pycache__/
 
 *.log
 uv.lock
+
+#vscode
+.vscode/

@@ -5,6 +5,11 @@ import requests
 import logging
 import httpx
 import io
+from typing import Literal, Optional, Any, Dict
+from pydantic_ai import RunContext
+from dataclasses import dataclass
+
+
 
 from app.utils import RAG_AGENT_SYSTEM_PROMPT, PDF_AGENT_PROMPT
 from app.services.vector_store_service import (
@@ -15,6 +20,52 @@ from app.services.vector_store_service import (
 
 load_dotenv()
 client = genai.Client()
+
+@dataclass
+class ApiDependencies:
+    http_client: httpx.AsyncClient
+
+async def api_request(
+    ctx: RunContext,
+    url: str,
+    method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"],
+    payload: Optional[Dict[str, Any]] = None,
+) -> Any:
+    """
+    Makes a generic HTTP request to a specified URL and returns the JSON response.
+
+    Use this tool to interact with any external API to fetch or send data when
+    no other more specific tool is available.
+
+    :param url: The full, absolute URL of the API endpoint to request. Must be a valid HTTP or HTTPS URL.
+    :param method: The HTTP method to use. Must be one of 'GET', 'POST', 'PUT', 'DELETE', or 'PATCH'.
+    :param payload: An optional dictionary of data to send as the JSON body. Typically used with 'POST', 'PUT', or 'PATCH' methods.
+    """
+    try:
+        response = await ctx.deps.http_client.request(
+            method=method,
+            url=url,
+            json=payload if payload else None,
+            follow_redirects=True,
+            timeout=10.0,
+        )
+        response.raise_for_status()
+        if response.status_code!= 204:
+            return response.json()
+        else:
+            return {"status": "success", "code": response.status_code}
+    except httpx.HTTPStatusError as e:
+        error_body = e.response.text
+        return {
+            "error": "HTTP Error", 
+            "status_code": e.response.status_code, 
+            "details": f"The server responded with an error. Response body: {error_body[:500]}"
+        }
+    except httpx.RequestError as e:
+        return {"error": "Request Error", "details": f"A network error occurred: {e}"}
+    except Exception as e:
+        return {"error": "An unexpected error occurred", "details": str(e)}
+
 
 async def retrieve_relevant_pdf_chunks(user_query: str, source_file: str = "") -> str:
     embedding = await get_embedding(user_query)
@@ -117,3 +168,26 @@ async def pdf_query(url: str, questions: list) -> list:
 
     answers = response.parsed
     return answers
+
+
+# Usage
+
+# async def main():
+#     """
+#     Main function to set up dependencies and run the agent.
+#     """
+#     prompt = "Please fetch the details for the user with ID 1 from the JSONPlaceholder API."
+#     print(f"User Prompt: {prompt}\n")
+
+#     # Use an async context manager for the client to ensure proper cleanup
+#     async with httpx.AsyncClient() as client:
+#         # Instantiate the dependencies
+#         api_deps = ApiDependencies(http_client=client)
+
+#         # Run the agent
+#         result = await agent.run(prompt, deps=api_deps)
+
+#         # Print the final output
+#         print("--- Agent Final Output ---")
+#         import json
+#         print(json.dumps(result.output, indent=2))
