@@ -18,7 +18,6 @@ load_dotenv()
 class ApiDependencies:
     http_client: httpx.AsyncClient
 
-
 agent = Agent(
     "google-gla:gemini-2.5-pro",
     system_prompt=RAG_AGENT_SYSTEM_PROMPT,
@@ -74,6 +73,7 @@ async def api_request(
     except Exception as e:
         return {"error": "An unexpected error occurred", "details": str(e)}
 
+@agent.tool_plain
 async def crawl_and_aggregate_website(
     start_url: str,
     max_pages: int = 50,
@@ -136,14 +136,3 @@ async def crawl_and_aggregate_website(
     logging.info(f"Crawl finished. Successfully crawled {pages_crawled_count} pages. Failed on {pages_failed_count} pages.")
     
     return "\n\n---\n\n".join(aggregated_content)
-
-
-async def main():
-    print("getting output...")
-
-    res = await pdf_ai_expert.run("source_file is three.pdf. user_query: Explain how the Cashless Facility (Definition 5) operates in conjunction with the Network Provider definition (Definition 31), and what Condition Precedent (Definition 6) and Co-Payment (Definition 8) requirements apply when an insured avails cashless treatment. Additionally, describe how Room Rent and ICU Charges limits (Section C Part A, Table of Benefits) interact with these provisions.")
-    print(res.output)
-
-if __name__ == '__main__':
-    import asyncio
-    asyncio.run(main())
