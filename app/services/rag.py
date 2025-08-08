@@ -68,20 +68,20 @@ async def answer_query(user_query: str, source_file: str = None) -> str:
         # content = response.choices[0].message.content
         # return content
 
-        # async with httpx.AsyncClient() as client:
-        #     api_deps = ApiDependencies(http_client=client)
-        #     result = await agent.run(prompt, deps=api_deps)
+        async with httpx.AsyncClient() as client:
+            api_deps = ApiDependencies(http_client=client)
+            result = await agent.run(prompt, deps=api_deps)
 
-        #     return result.output
+            return result.output
 
-        import os
-        keys = []
-        for i in range(5):
-            keys.append(os.getenv(f"KEY{i + 1}"))
+        # import os
+        # keys = []
+        # for i in range(5):
+        #     keys.append(os.getenv(f"KEY{i + 1}"))
 
-        rr = RoundRobin(keys)
-        result  = await rr.run(prompt)
-        return result
+        # rr = RoundRobin(keys)
+        # result  = await rr.run(prompt)
+        # return result
 
     except Exception as e:
         logging.error(f"Error getting answer: {e}")
