@@ -11,10 +11,10 @@ from app.services.vector_store_service import (
     openai_client,
     get_embedding
 )
-from app.services.agent import (
-    ApiDependencies,
-    agent
-)
+# from app.services.agent import (
+#     ApiDependencies,
+#     agent
+# )
 from app.utils import (
     RAG_AGENT_SYSTEM_PROMPT,
     PDF_AGENT_PROMPT
@@ -142,3 +142,10 @@ async def pdf_query(url: str, questions: list) -> list:
     answers = response.parsed
     return answers
 
+async def main():
+    result = await answer_query("How are you?")
+    print(result)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())

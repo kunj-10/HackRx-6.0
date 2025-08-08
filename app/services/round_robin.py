@@ -4,6 +4,8 @@ from crawl4ai import AsyncWebCrawler
 from dataclasses import dataclass
 from openai import RateLimitError
 from dotenv import load_dotenv
+from pydantic_ai.providers.openai import OpenAIProvider
+from pydantic_ai.models.openai import OpenAIModel
 from openai import OpenAI
 import logging
 import httpx
@@ -18,10 +20,13 @@ class ApiDependencies:
     http_client: httpx.AsyncClient
 
 def get_agent(api_key: str):
+    model = OpenAIModel(
+        'gpt-4.1-mini',
+        provider=OpenAIProvider(api_key=api_key)
+    )
     agent = Agent(
-        # "google-gla:gemini-2.5-pro",
-        "openai:chatgpt-4.1-mini",
-        api_key=api_key,
+        model,
+        # "openai:chatgpt-4.1-mini",
         system_prompt=RAG_AGENT_SYSTEM_PROMPT,
         deps_type=ApiDependencies,
         retries=2
@@ -143,6 +148,7 @@ def get_agent(api_key: str):
 
 class RoundRobin:
     def __init__(self, api_keys: list[str]):
+        self.keys = api_keys
         self.clients = [get_agent(key) for key in api_keys]
         self.client_index = 0
         self.total_clients = len(self.clients)
