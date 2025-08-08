@@ -1,6 +1,6 @@
 from typing import Literal, Optional, Any, Dict, List
 from pydantic_ai import RunContext, Agent
-from crawl4ai import AsyncWebCrawler
+# from crawl4ai import AsyncWebCrawler
 from dataclasses import dataclass
 from dotenv import load_dotenv
 import logging
