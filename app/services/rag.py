@@ -10,8 +10,6 @@ from pydantic_ai import RunContext
 from dataclasses import dataclass
 from crawl4ai import AsyncWebCrawler
 
-
-
 from app.utils import RAG_AGENT_SYSTEM_PROMPT, PDF_AGENT_PROMPT
 from app.services.vector_store_service import (
     supabase,
