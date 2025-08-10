@@ -12,7 +12,6 @@ __pycache__/
 .DS_Store
 
 *.log
-uv.lock
 
 #vscode
 .vscode/

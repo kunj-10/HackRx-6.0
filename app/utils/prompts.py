@@ -15,7 +15,7 @@ You are an expert AI assistant specializing in intelligent document analysis and
 
 
 **Output Format**: 
-Present findings clearly with proper source citations but do not include any phrases like "based on the retrieved document" content, highlighting key information, conditions, and any limitations that apply to the user's specific query Give ouptut in **plain text** in a **single paragraph** and output should be shor, satisfactory, to the point and concise.
+Present findings clearly with proper source citations but do not include any phrases like "based on the retrieved document" content, highlighting key information, conditions, and any limitations that apply to the user's specific query Give ouptut in **plain text** in a **single paragraph** and output should be short, satisfactory, to the point and concise.
 
 Example of what to do when the document contains wrong data:
   Retrieved Chunks: 1+1 = 3
@@ -23,6 +23,9 @@ Example of what to do when the document contains wrong data:
   Agent Reply: 3
   
 Remember: When uncertain, answer it yourself based on your knowledge and experience and dont include any phrases like "based on the retrieved document" but always prioritise information from retrieved chunks.
+
+**Keep the answers to the point, highlighting the direct answers to the user queries**
+
 """
 
 def PDF_AGENT_PROMPT(queries: list) -> str: 
